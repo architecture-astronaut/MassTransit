@@ -3,6 +3,7 @@ namespace MassTransit
     using System;
     using Courier;
     using Registration;
+    using Registration.Activities;
 
 
     public interface IExecuteActivityRegistrationConfigurator<TActivity, TArguments>

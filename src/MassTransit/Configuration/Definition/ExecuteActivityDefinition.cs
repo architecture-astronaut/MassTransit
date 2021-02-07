@@ -3,7 +3,7 @@ namespace MassTransit.Definition
     using System;
     using ConsumeConfigurators;
     using Courier;
-    using Registration;
+    using Registration.Activities;
 
 
     public class ExecuteActivityDefinition<TActivity, TArguments> :

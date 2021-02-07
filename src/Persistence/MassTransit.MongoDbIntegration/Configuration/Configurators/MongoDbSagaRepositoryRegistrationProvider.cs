@@ -4,6 +4,7 @@ namespace MassTransit.MongoDbIntegration.Configurators
     using GreenPipes.Internals.Extensions;
     using MassTransit.Saga;
     using Registration;
+    using Registration.Sagas;
 
 
     public class MongoDbSagaRepositoryRegistrationProvider :

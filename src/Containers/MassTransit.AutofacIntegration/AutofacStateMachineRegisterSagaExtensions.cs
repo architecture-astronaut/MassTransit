@@ -6,6 +6,7 @@
     using AutofacIntegration.Registration;
     using Automatonymous;
     using Registration;
+    using Registration.Sagas;
 
 
     public static class AutofacStateMachineRegisterSagaExtensions

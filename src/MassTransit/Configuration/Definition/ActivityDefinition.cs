@@ -2,7 +2,7 @@ namespace MassTransit.Definition
 {
     using System;
     using Courier;
-    using Registration;
+    using Registration.Activities;
 
 
     public class ActivityDefinition<TActivity, TArguments, TLog> :

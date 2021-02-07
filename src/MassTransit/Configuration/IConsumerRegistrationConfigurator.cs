@@ -2,6 +2,7 @@ namespace MassTransit
 {
     using System;
     using Registration;
+    using Registration.Consumers;
 
 
     public interface IConsumerRegistrationConfigurator<TConsumer>

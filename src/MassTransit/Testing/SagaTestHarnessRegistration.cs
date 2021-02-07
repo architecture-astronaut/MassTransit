@@ -4,6 +4,7 @@ namespace MassTransit.Testing
     using Decorators;
     using MessageObservers;
     using Registration;
+    using Registration.Sagas;
     using Saga;
 
 

@@ -3,6 +3,7 @@ namespace MassTransit.RedisIntegration.Configuration
     using System;
     using GreenPipes.Internals.Extensions;
     using Registration;
+    using Registration.Sagas;
     using Saga;
 
 

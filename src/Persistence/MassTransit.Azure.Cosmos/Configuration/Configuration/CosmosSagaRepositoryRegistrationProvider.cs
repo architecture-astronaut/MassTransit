@@ -3,6 +3,7 @@ namespace MassTransit.Azure.Cosmos.Configuration
     using System;
     using MassTransit.Saga;
     using Registration;
+    using Registration.Sagas;
 
 
     public class CosmosSagaRepositoryRegistrationProvider :

@@ -1,8 +1,9 @@
 namespace MassTransit.Definition
 {
     using System;
+    using Conductor;
     using ConsumeConfigurators;
-    using Registration;
+    using Registration.Consumers;
 
 
     /// <summary>
@@ -60,6 +61,10 @@ namespace MassTransit.Definition
                 : _endpointName;
         }
 
+        public virtual void Configure(IServiceRegistry registry)
+        {
+        }
+
         /// <summary>
         /// Configure the consumer endpoint
         /// </summary>
@@ -71,26 +76,6 @@ namespace MassTransit.Definition
             configure?.Invoke(configurator);
 
             EndpointDefinition = new ConsumerEndpointDefinition<TConsumer>(configurator.Settings);
-        }
-
-        /// <summary>
-        /// Define a message handled by the consumer
-        /// </summary>
-        /// <param name="configure"></param>
-        /// <typeparam name="T">The message type</typeparam>
-        protected void Message<T>(Action<IConsumerMessageDefinitionConfigurator<TConsumer, T>> configure = null)
-            where T : class
-        {
-        }
-
-        /// <summary>
-        /// Define the request message handled by the consumer
-        /// </summary>
-        /// <param name="configure"></param>
-        /// <typeparam name="T">The message type</typeparam>
-        protected void Request<T>(Action<IConsumerRequestDefinitionConfigurator<TConsumer, T>> configure = null)
-            where T : class
-        {
         }
 
         /// <summary>

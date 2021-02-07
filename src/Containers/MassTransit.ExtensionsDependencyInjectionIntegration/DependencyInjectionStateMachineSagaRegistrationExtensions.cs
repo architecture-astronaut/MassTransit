@@ -6,6 +6,7 @@ namespace MassTransit
     using ExtensionsDependencyInjectionIntegration.Registration;
     using Microsoft.Extensions.DependencyInjection;
     using Registration;
+    using Registration.Sagas;
 
 
     public static class DependencyInjectionStateMachineSagaRegistrationExtensions

@@ -8,7 +8,9 @@ namespace MassTransit.WindsorIntegration.Registration
     using Clients;
     using Courier;
     using Definition;
+    using Futures;
     using MassTransit.Registration;
+    using MassTransit.Registration.Futures;
     using Mediator;
     using Saga;
     using ScopeProviders;
@@ -137,6 +139,24 @@ namespace MassTransit.WindsorIntegration.Registration
                 Component.For<IEndpointDefinition<T>>()
                     .ImplementedBy<TDefinition>(),
                 Component.For<IEndpointSettings<IEndpointDefinition<T>>>().Instance(settings));
+        }
+
+        public void RegisterFuture<TFuture>()
+            where TFuture : MassTransitStateMachine<FutureState>
+        {
+            _container.Register(
+                Component.For<TFuture>().LifestyleSingleton()
+            );
+        }
+
+        public void RegisterFutureDefinition<TDefinition, TFuture>()
+            where TDefinition : class, IFutureDefinition<TFuture>
+            where TFuture : MassTransitStateMachine<FutureState>
+        {
+            if (!_container.Kernel.HasComponent(typeof(IFutureDefinition<TFuture>)))
+                _container.Register(
+                    Component.For<IFutureDefinition<TFuture>>()
+                        .ImplementedBy<TDefinition>());
         }
 
         public void RegisterRequestClient<T>(RequestTimeout timeout = default)

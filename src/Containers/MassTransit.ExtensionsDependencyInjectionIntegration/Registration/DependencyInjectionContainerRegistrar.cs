@@ -3,8 +3,12 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
     using System;
     using Automatonymous;
     using Clients;
+    using Conductor.Inventory;
     using Definition;
+    using Futures;
+    using Internals.Extensions;
     using MassTransit.Registration;
+    using MassTransit.Registration.Futures;
     using Mediator;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -30,7 +34,11 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
 
         void IContainerRegistrar.RegisterConsumerDefinition<TDefinition, TConsumer>()
         {
-            _collection.AddTransient<IConsumerDefinition<TConsumer>, TDefinition>();
+            _collection.AddSingleton<TDefinition>();
+            _collection.AddSingleton<IConsumerDefinition<TConsumer>>(provider => provider.GetRequiredService<TDefinition>());
+
+            if (typeof(TDefinition).HasInterface<IConfigureServiceRegistry>())
+                _collection.AddSingleton(provider => (IConfigureServiceRegistry)provider.GetRequiredService<TDefinition>());
         }
 
         void IContainerRegistrar.RegisterSaga<T>()
@@ -94,6 +102,23 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
 
             if (settings != null)
                 _collection.AddSingleton(settings);
+        }
+
+        public void RegisterFuture<TFuture>()
+            where TFuture : MassTransitStateMachine<FutureState>
+        {
+            _collection.AddSingleton<TFuture>();
+        }
+
+        public void RegisterFutureDefinition<TDefinition, TFuture>()
+            where TDefinition : class, IFutureDefinition<TFuture>
+            where TFuture : MassTransitStateMachine<FutureState>
+        {
+            _collection.AddSingleton<TDefinition>();
+            _collection.AddSingleton<IFutureDefinition<TFuture>>(provider => provider.GetRequiredService<TDefinition>());
+
+            if (typeof(TDefinition).HasInterface<IConfigureServiceRegistry>())
+                _collection.AddSingleton(provider => (IConfigureServiceRegistry)provider.GetRequiredService<TDefinition>());
         }
 
         void IContainerRegistrar.RegisterRequestClient<T>(RequestTimeout timeout)

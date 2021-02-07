@@ -3,6 +3,7 @@ namespace MassTransit.EntityFrameworkIntegration.Configurators
     using System;
     using MassTransit.Saga;
     using Registration;
+    using Registration.Sagas;
 
 
     public class EntityFrameworkSagaRepositoryRegistrationProvider :

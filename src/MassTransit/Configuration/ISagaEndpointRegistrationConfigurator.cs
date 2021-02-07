@@ -1,6 +1,6 @@
 namespace MassTransit
 {
-    using Registration;
+    using Registration.Endpoints;
     using Saga;
 
 

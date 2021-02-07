@@ -1,0 +1,18 @@
+namespace MassTransit.Registration.Activities
+{
+    using Endpoints;
+    using MassTransit.Courier;
+
+
+    public class CompensateActivityEndpointRegistrationConfigurator<TActivity, TLog> :
+        EndpointRegistrationConfigurator<ICompensateActivity<TLog>>,
+        ICompensateActivityEndpointRegistrationConfigurator<TActivity, TLog>
+        where TActivity : class, ICompensateActivity<TLog>
+        where TLog : class
+    {
+        public CompensateActivityEndpointRegistrationConfigurator()
+        {
+            ConfigureConsumeTopology = false;
+        }
+    }
+}

@@ -3,6 +3,9 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Conductor;
+    using Conductor.Inventory;
+    using Conductor.Inventory.AsyncExecutor;
     using Context;
     using MassTransit.Registration;
     using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +30,11 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
             {
                 var provider = serviceProvider.GetRequiredService<IConfigurationServiceProvider>();
                 var busHealth = serviceProvider.GetRequiredService<BusHealth>();
-                return new BusRegistrationContext(provider, busHealth, Endpoints, Consumers, Sagas, ExecuteActivities, Activities);
+
+                // needs to be built/resolved, prior to registration context
+                serviceProvider.GetRequiredService<IServiceCatalog>();
+
+                return new BusRegistrationContext(provider, busHealth, Endpoints, Consumers, Sagas, ExecuteActivities, Activities, Futures);
             }
 
             collection.AddSingleton(provider =>
@@ -35,6 +42,20 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.Registration
 
             collection.AddSingleton(provider => new BusHealth());
             collection.AddSingleton<IBusHealth>(provider => provider.GetRequiredService<BusHealth>());
+
+            collection.AddSingleton(provider => Bind<IBus>.Create(new ServiceRegistry()));
+            collection.AddSingleton<IServiceRegistry>(provider => provider.GetRequiredService<Bind<IBus, ServiceRegistry>>().Value);
+            collection.AddSingleton(provider =>
+            {
+                var registry = provider.GetRequiredService<Bind<IBus, ServiceRegistry>>().Value;
+
+                var configurations = provider.GetServices<IConfigureServiceRegistry>();
+                foreach (var configuration in configurations)
+                    configuration.Configure(registry);
+
+                return registry.BuildServiceCatalog();
+            });
+            collection.AddTransient<IAsyncPlanExecutorFactory, AsyncPlanExecutorFactory>();
 
             collection.AddSingleton(provider => Bind<IBus>.Create(CreateRegistrationContext(provider)));
             collection.AddSingleton(provider => provider.GetRequiredService<Bind<IBus, IBusRegistrationContext>>().Value);

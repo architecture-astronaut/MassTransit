@@ -1,6 +1,7 @@
 namespace MassTransit
 {
     using Registration;
+    using Registration.Sagas;
     using Saga;
     using Saga.InMemoryRepository;
 

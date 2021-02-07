@@ -6,7 +6,9 @@ namespace MassTransit.SimpleInjectorIntegration.Registration
     using Clients;
     using Courier;
     using Definition;
+    using Futures;
     using MassTransit.Registration;
+    using MassTransit.Registration.Futures;
     using Mediator;
     using Saga;
     using ScopeProviders;
@@ -121,6 +123,19 @@ namespace MassTransit.SimpleInjectorIntegration.Registration
 
             if (settings != null)
                 _container.RegisterInstance(settings);
+        }
+
+        public void RegisterFuture<TFuture>()
+            where TFuture : MassTransitStateMachine<FutureState>
+        {
+            _container.RegisterSingleton<TFuture>();
+        }
+
+        public void RegisterFutureDefinition<TDefinition, TFuture>()
+            where TDefinition : class, IFutureDefinition<TFuture>
+            where TFuture : MassTransitStateMachine<FutureState>
+        {
+            _container.Register<IFutureDefinition<TFuture>, TDefinition>(Lifestyle.Transient);
         }
 
         public void RegisterRequestClient<T>(RequestTimeout timeout)

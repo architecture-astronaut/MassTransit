@@ -7,6 +7,7 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.ScopeProviders
     using Context;
     using GreenPipes;
     using Microsoft.Extensions.DependencyInjection;
+    using Registration;
     using Saga;
 
 
@@ -68,18 +69,18 @@ namespace MassTransit.ExtensionsDependencyInjectionIntegration.ScopeProviders
 
             async Task CreateScope()
             {
-                using var serviceScope = serviceProvider.CreateScope();
+                using var scope = serviceProvider.CreateScope();
 
-                serviceScope.UpdateScope(context);
+                scope.UpdateScope(context);
 
-                var scopeServiceProvider = serviceScope.ServiceProvider;
-
-                var activityFactory = scopeServiceProvider.GetService<IStateMachineActivityFactory>()
+                var activityFactory = scope.ServiceProvider.GetService<IStateMachineActivityFactory>()
                     ?? DependencyInjectionStateMachineActivityFactory.Instance;
 
-                var consumeContextScope = new ConsumeContextScope<T>(context, serviceScope, scopeServiceProvider, activityFactory);
+                var scopeServiceProvider = new DependencyInjectionScopeServiceProvider(scope.ServiceProvider);
 
-                var factory = scopeServiceProvider.GetRequiredService<ISagaRepositoryContextFactory<TSaga>>();
+                var consumeContextScope = new ConsumeContextScope<T>(context, scope, scope.ServiceProvider, scopeServiceProvider, activityFactory);
+
+                var factory = scope.ServiceProvider.GetRequiredService<ISagaRepositoryContextFactory<TSaga>>();
 
                 await send(consumeContextScope, factory).ConfigureAwait(false);
             }

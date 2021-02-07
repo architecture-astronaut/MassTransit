@@ -2,6 +2,7 @@ namespace MassTransit.DapperIntegration.Configurators
 {
     using System;
     using Registration;
+    using Registration.Sagas;
     using Saga;
 
 

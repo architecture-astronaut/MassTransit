@@ -2,6 +2,7 @@ namespace MassTransit.Azure.ServiceBus.Core.Configuration
 {
     using MassTransit.Saga;
     using Registration;
+    using Registration.Sagas;
 
 
     public class MessageSessionSagaRepositoryRegistrationProvider :

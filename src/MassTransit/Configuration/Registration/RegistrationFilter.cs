@@ -1,6 +1,10 @@
 namespace MassTransit.Registration
 {
     using System;
+    using Activities;
+    using Consumers;
+    using Futures;
+    using Sagas;
     using Util.Scanning;
 
 
@@ -32,6 +36,11 @@ namespace MassTransit.Registration
         public bool Matches(IActivityRegistration registration)
         {
             return _filter.Matches(registration.ActivityType);
+        }
+
+        public bool Matches(IFutureRegistration registration)
+        {
+            return _filter.Matches(registration.FutureType);
         }
     }
 }

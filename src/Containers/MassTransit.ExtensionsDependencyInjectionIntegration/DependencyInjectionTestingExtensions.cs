@@ -5,6 +5,8 @@ namespace MassTransit.Testing
     using ExtensionsDependencyInjectionIntegration;
     using Microsoft.Extensions.DependencyInjection;
     using Registration;
+    using Registration.Consumers;
+    using Registration.Sagas;
     using Saga;
 
 

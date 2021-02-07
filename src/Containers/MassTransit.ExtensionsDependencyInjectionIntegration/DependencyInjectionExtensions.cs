@@ -86,9 +86,11 @@ namespace MassTransit
             return provider.GetRequiredService<IClientFactory>().CreateRequestClient<T>(destinationAddress, timeout);
         }
 
-        public static void AddGenericRequestClient(this IServiceCollection collection)
+        public static IServiceCollection AddGenericRequestClient(this IServiceCollection collection)
         {
             collection.AddScoped(typeof(IRequestClient<>), typeof(GenericRequestClient<>));
+
+            return collection;
         }
 
 

@@ -5,6 +5,7 @@ namespace MassTransit.MartenIntegration.Configurators
     using MassTransit.Saga;
     using Npgsql;
     using Registration;
+    using Registration.Sagas;
 
 
     public class MartenSagaRepositoryRegistrationProvider :

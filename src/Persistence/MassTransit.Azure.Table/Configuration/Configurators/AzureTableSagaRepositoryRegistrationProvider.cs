@@ -3,6 +3,7 @@ namespace MassTransit.Azure.Table.Configurators
     using System;
     using MassTransit.Saga;
     using Registration;
+    using Registration.Sagas;
 
 
     public class AzureTableSagaRepositoryRegistrationProvider :

@@ -3,6 +3,7 @@ namespace MassTransit.Testing
     using Decorators;
     using MessageObservers;
     using Registration;
+    using Registration.Consumers;
 
 
     public class ConsumerTestHarnessRegistration<TConsumer> :

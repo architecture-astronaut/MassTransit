@@ -1,7 +1,8 @@
 namespace MassTransit.Definition
 {
     using System;
-    using Registration;
+    using Conductor;
+    using Registration.Sagas;
     using Saga;
 
 
@@ -52,11 +53,6 @@ namespace MassTransit.Definition
             ConfigureSaga(endpointConfigurator, sagaConfigurator);
         }
 
-        public void Configure<T>(IReceiveEndpointConfigurator endpointConfigurator, ISagaMessageConfigurator<TSaga, T> sagaMessageConfigurator)
-            where T : class
-        {
-        }
-
         Type ISagaDefinition.SagaType => typeof(TSaga);
 
         string ISagaDefinition.GetEndpointName(IEndpointNameFormatter formatter)
@@ -64,6 +60,10 @@ namespace MassTransit.Definition
             return string.IsNullOrWhiteSpace(_endpointName)
                 ? _endpointName = EndpointDefinition?.GetEndpointName(formatter) ?? formatter.Saga<TSaga>()
                 : _endpointName;
+        }
+
+        public virtual void Configure(IServiceRegistry registry)
+        {
         }
 
         /// <summary>

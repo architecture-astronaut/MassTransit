@@ -8,9 +8,12 @@ namespace MassTransit
     using ConsumeConfigurators;
     using Courier;
     using Definition;
+    using Futures;
     using Internals.Extensions;
     using Metadata;
     using Registration;
+    using Registration.Futures;
+    using Registration.Sagas;
     using Saga;
     using Util;
 
@@ -519,6 +522,111 @@ namespace MassTransit
             }
 
             return AssemblyTypeCache.FindTypes(type.Assembly, TypeClassification.Concrete | TypeClassification.Closed, Filter).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Adds all futures in the specified assemblies
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="assemblies">The assemblies to scan for futures</param>
+        public static void AddFutures(this IRegistrationConfigurator configurator, params Assembly[] assemblies)
+        {
+            AddFutures(configurator, null, assemblies);
+        }
+
+        /// <summary>
+        /// Adds all futures that match the given filter in the specified assemblies
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="filter"></param>
+        /// <param name="assemblies">The assemblies to scan for futures</param>
+        public static void AddFutures(this IRegistrationConfigurator configurator, Func<Type, bool> filter, params Assembly[] assemblies)
+        {
+            if (assemblies.Length == 0)
+                assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            var types = AssemblyTypeCache.FindTypes(assemblies, TypeMetadataCache.IsFutureOrDefinition).GetAwaiter().GetResult();
+
+            AddFutures(configurator, filter, types.FindTypes(TypeClassification.Concrete | TypeClassification.Closed).ToArray());
+        }
+
+        /// <summary>
+        /// Adds all futures from the assembly containing the specified type that are in the same (or deeper) namespace.
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="filter"></param>
+        /// <typeparam name="T">The anchor type</typeparam>
+        public static void AddFuturesFromNamespaceContaining<T>(this IRegistrationConfigurator configurator, Func<Type, bool> filter = null)
+        {
+            AddFuturesFromNamespaceContaining(configurator, typeof(T), filter);
+        }
+
+        /// <summary>
+        /// Adds all futures in the specified assemblies matching the namespace
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="type">The type to use to identify the assembly and namespace to scan</param>
+        /// <param name="filter"></param>
+        public static void AddFuturesFromNamespaceContaining(this IRegistrationConfigurator configurator, Type type, Func<Type, bool> filter = null)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            if (type.Assembly == null || type.Namespace == null)
+                throw new ArgumentException($"The type {TypeMetadataCache.GetShortName(type)} is not in an assembly with a valid namespace", nameof(type));
+
+            IEnumerable<Type> types;
+            if (filter != null)
+            {
+                bool IsAllowed(Type candidate)
+                {
+                    return TypeMetadataCache.IsFutureOrDefinition(candidate) && filter(candidate);
+                }
+
+                types = FindTypesInNamespace(type, IsAllowed);
+            }
+            else
+                types = FindTypesInNamespace(type, TypeMetadataCache.IsFutureOrDefinition);
+
+            AddFutures(configurator, types.ToArray());
+        }
+
+        /// <summary>
+        /// Adds the specified consumer types
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// ˆ
+        /// <param name="types">The state machine types to add</param>
+        public static void AddFutures(this IRegistrationConfigurator configurator, params Type[] types)
+        {
+            AddFutures(configurator, null, types);
+        }
+
+        /// <summary>
+        /// Adds the specified consumer types which match the given filter
+        /// </summary>
+        /// <param name="configurator"></param>
+        /// <param name="filter"></param>
+        /// <param name="types">The consumer types to add</param>
+        public static void AddFutures(this IRegistrationConfigurator configurator, Func<Type, bool> filter, params Type[] types)
+        {
+            filter ??= t => true;
+
+            IEnumerable<Type> consumerTypes = types.Where(x => x.HasInterface(typeof(SagaStateMachine<FutureState>)));
+            IEnumerable<Type> consumerDefinitionTypes = types.Where(x => x.HasInterface(typeof(IFutureDefinition<>)));
+
+            var futures = from c in consumerTypes
+                join d in consumerDefinitionTypes on c equals d.GetClosingArgument(typeof(IFutureDefinition<>)) into dc
+                from d in dc.DefaultIfEmpty()
+                where filter(c)
+                select new
+                {
+                    FutureType = c,
+                    DefinitionType = d
+                };
+
+            foreach (var future in futures)
+                configurator.AddFuture(future.FutureType, future.DefinitionType);
         }
     }
 }

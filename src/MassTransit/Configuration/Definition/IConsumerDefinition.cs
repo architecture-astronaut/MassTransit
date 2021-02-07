@@ -1,11 +1,13 @@
 namespace MassTransit.Definition
 {
     using System;
+    using Conductor.Inventory;
     using ConsumeConfigurators;
 
 
     public interface IConsumerDefinition :
-        IDefinition
+        IDefinition,
+        IConfigureServiceRegistry
     {
         /// <summary>
         /// The consumer type
